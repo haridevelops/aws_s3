@@ -1,0 +1,7 @@
+Hey hello
+
+Welcome to Learning AWS s3 object upload
+
+You will safely moved to s3 bucket for storage.
+
+C YA!
