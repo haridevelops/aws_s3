@@ -1,5 +1,5 @@
-const aws = require('aws-sdk')
-const fs = require('fs')
+const AWS = require("aws-sdk")
+const fs = require("fs")
 
 /**
  * This is one way and the more standard and secure way is storing the 
@@ -14,22 +14,23 @@ const fs = require('fs')
  * change the permission of the file for safety.
  * 
  */
-aws.config.update({
-    secretAccessKey: '',
-    accessKeyId: '',
-    // region: ''
+
+/* aws.config.update({
+    secretAccessKey: "",
+    accessKeyId: "",
+    // region: ""
 });
 
-const s3 = new aws.S3();
+const s3 = new AWS.S3();
 
-const fileName = 'sample.txt'
+const fileName = "sample.txt"
 
 const uploadFile = () => {
-    fs.readFile(fileName, 'utf-8', (err, data) => {
+    fs.readFile(fileName, "utf-8", (err, data) => {
        if (err) throw err;
 
        const params = {
-           Bucket: 'hari-123', // pass your bucket name
+           Bucket: "hari-123", // pass your bucket name
            Key: fileName, // file name that has been parsed
            Body: JSON.stringify(data)
        };
@@ -45,12 +46,64 @@ const uploadFile = () => {
 
 
   const getfile = s3.getObject({
-    Bucket: 'hari-123', // pass your bucket name
+    Bucket: "hari-123", // pass your bucket name
     Key: fileName, // file name that needs to be read
   }, (err, data) => {
       if (err) throw err;
       
-      fs.writeFile('Output.txt', data.Body, (err) => {
+      fs.writeFile("Output.txt", data.Body, (err) => {
           if (err) console.log(err)
       })
   })
+
+  */
+
+
+  /**
+   * sts learning
+   */
+
+AWS.config.update({
+    accessKeyId: '',
+    secretAccessKey: '',
+    region: "ap-south-1"
+})
+
+const sts = new AWS.STS()
+
+const userId = "123";
+
+const createBucketPolicy = 
+    `{
+       "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "VisualStudioCode",
+                "Effect": "Allow",
+                "Action": [
+                    "s3:PutObject",
+                    "s3:GetObject"
+                ],
+                "Resource": [
+                    "arn:aws:s3:::hari-bucket-1/${userId}/*",
+                    "arn:aws:s3:::hari-bucket-2/${userId}/*"
+                ]
+            }
+        ] 
+    }`
+
+const role = {
+    RoleArn: "arn:aws:iam::010932208584:role/assumeRoleForWebClient",
+    Policy: createBucketPolicy,
+    RoleSessionName: "assumeRoleForWebClient",
+    DurationSeconds: 3600
+}
+
+sts.assumeRole(role, (err, data) => {
+    if (err) console.log(err)
+    console.log({
+        accessKeyId: data.Credentials.AccessKeyId,
+        secretAccessKey: data.Credentials.SecretAccessKey,
+        sessionToken: data.Credentials.SessionToken
+    })
+})
